@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'WEM_CF_VERSION', '1.0.0' );
-define( 'WEM_CF_SCHEMA_VERSION', 1 );
+define( 'WEM_CF_SCHEMA_VERSION', 2 );
 define( 'WEM_CF_FILE', __FILE__ );
 define( 'WEM_CF_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WEM_CF_URL', plugin_dir_url( __FILE__ ) );
