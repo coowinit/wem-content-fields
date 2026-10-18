@@ -62,6 +62,9 @@ class Validator {
 			$location_mode = 'all';
 		}
 		$page_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) ( $raw_location['page_ids'] ?? [] ) ) ) ) );
+		if ( 'specific_pages' === $location_mode && ! in_array( 'page', $post_types, true ) ) {
+			$errors->add( 'location_post_type_required', '指定页面显示条件必须关联 WordPress 的“页面（Page）”内容类型。' );
+		}
 		if ( 'specific_pages' === $location_mode && empty( $page_ids ) ) {
 			$errors->add( 'location_pages_required', '请选择至少一个指定页面。' );
 		}
