@@ -120,7 +120,7 @@ $render_settings = static function ( array $field, int $index, array $schema ): 
 			<?php $location = isset( $config['location'] ) && is_array( $config['location'] ) ? $config['location'] : [ 'mode' => 'all', 'page_ids' => [] ]; ?>
 			<fieldset class="wem-cf-location-options">
 				<label><input type="radio" name="group[location][mode]" value="all" <?php checked( ( $location['mode'] ?? 'all' ), 'all' ); ?>> 所选内容类型的全部内容</label>
-				<label><input type="radio" name="group[location][mode]" value="specific_pages" <?php checked( ( $location['mode'] ?? 'all' ), 'specific_pages' ); ?  >> 仅在指定页面显示</label>
+				<label><input type="radio" name="group[location][mode]" value="specific_pages" <?php checked( ( $location['mode'] ?? 'all' ), 'specific_pages' ); ?>> 仅在指定页面显示</label>
 			</fieldset>
 			<div class="wem-cf-location-pages">
 				<label for="wem-cf-location-page-ids"><strong>选择页面</strong></label>
