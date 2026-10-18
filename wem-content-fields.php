@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WEM Content Fields
  * Description: 一个轻量、可迁移的 WordPress 结构化字段管理插件，基于原生 Post Meta API。
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: WEM
  * Text Domain: wem-content-fields
  * Requires at least: 6.4
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WEM_CF_VERSION', '1.0.0' );
+define( 'WEM_CF_VERSION', '1.1.0' );
 define( 'WEM_CF_SCHEMA_VERSION', 2 );
 define( 'WEM_CF_FILE', __FILE__ );
 define( 'WEM_CF_PATH', plugin_dir_path( __FILE__ ) );
