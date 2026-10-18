@@ -119,8 +119,8 @@ $render_settings = static function ( array $field, int $index, array $schema ): 
 			<p class="description">先选择适用的内容类型，再决定字段组出现在哪些编辑页面。此设置只影响后台编辑界面，不改变前台布局，也不会删除已有字段数据。</p>
 			<?php $location = isset( $config['location'] ) && is_array( $config['location'] ) ? $config['location'] : [ 'mode' => 'all', 'page_ids' => [] ]; ?>
 			<fieldset class="wem-cf-location-options">
-				<label><input type="radio" name="group[location][mode]" value="all" <?php checked( ( $location['mode'] ?? 'all' ), 'all' ); ?>> 全部关联内容类型</label>
-				<label><input type="radio" name="group[location][mode]" value="specific_pages" <?php checked( ( $location['mode'] ?? 'all' ), 'specific_pages' ); ?>> 仅在指定页面显示</label>
+				<label><input type="radio" name="group[location][mode]" value="all" <?php checked( ( $location['mode'] ?? 'all' ), 'all' ); ?  >> 所选内容类型的全部内容</label>
+				<label><input type="radio" name="group[location][mode]" value="specific_pages" <?php checked( ( $location['mode'] ?? 'all' ), 'specific_pages' ); ?  >> 仅在指定页面显示</label>
 			</fieldset>
 			<div class="wem-cf-location-pages">
 				<label for="wem-cf-location-page-ids"><strong>选择页面</strong></label>
