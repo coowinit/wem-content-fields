@@ -445,3 +445,27 @@
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
+
+
+/* Field group location rules */
+.wem-cf-location-options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	margin: 12px 0 16px;
+}
+.wem-cf-location-options label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+.wem-cf-location-pages {
+	max-width: 640px;
+}
+.wem-cf-location-pages select {
+	width: 100%;
+	min-height: 140px;
+}
+.wem-cf-location-pages[hidden] {
+	display: none !important;
+}
