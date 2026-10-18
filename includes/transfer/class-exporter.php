@@ -43,7 +43,7 @@ class Exporter {
 	 * Replace site-local Page IDs with path references for portable JSON.
 	 */
 	private function portable_group( array $group ): array {
-		$location = isset( $group['location'] ) && is_array( $group['location'] ) ? $group['location'] : [ 'mode' => 'all' ];
+		$location = ! array_key_exists( 'location', $group ) ? [ 'mode' => 'all' ] : ( is_array( $group['location'] ) ? $group['location'] : [ 'mode' => 'invalid' ] );
 		if ( 'specific_pages' === ( $location['mode'] ?? 'all' ) ) {
 			$refs = [];
 			foreach ( array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) ) as $page_id ) {
