@@ -55,6 +55,24 @@ class Validator {
 			$errors->add( 'post_type_required', '请至少选择一个内容类型。' );
 		}
 
+		$raw_location = isset( $input['location'] ) && is_array( $input['location'] ) ? $input['location'] : [];
+		$location_mode = sanitize_key( $raw_location['mode'] ?? 'all' );
+		if ( ! in_array( $location_mode, [ 'all', 'specific_pages' ], true ) ) {
+			$errors->add( 'location_mode_invalid', '显示条件不正确，请重新选择。' );
+			$location_mode = 'all';
+		}
+		$page_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) ( $raw_location['page_ids'] ?? [] ) ) ) ) );
+		if ( 'specific_pages' === $location_mode && empty( $page_ids ) ) {
+			$errors->add( 'location_pages_required', '请选择至少一个指定页面。' );
+		}
+		if ( 'specific_pages' === $location_mode ) {
+			foreach ( $page_ids as $page_id ) {
+				if ( 'page' !== get_post_type( $page_id ) ) {
+					$errors->add( 'location_page_invalid', '指定页面中包含无效的页面，请刷新后重新选择。' );
+				}
+			}
+		}
+
 		$other_field_keys = [];
 		$other_meta_keys  = [];
 		foreach ( $existing_groups as $group_key => $group ) {
@@ -126,6 +144,10 @@ class Validator {
 			'title'       => $title,
 			'description' => sanitize_textarea_field( $input['description'] ?? '' ),
 			'post_types'  => $post_types,
+			'location'    => [
+				'mode'     => $location_mode,
+				'page_ids' => 'specific_pages' === $location_mode ? $page_ids : [],
+			],
 			'fields'      => $fields,
 		];
 	}
