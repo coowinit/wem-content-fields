@@ -58,8 +58,10 @@ class Exporter {
 				];
 			}
 			$group['location'] = [ 'mode' => 'specific_pages', 'page_refs' => $refs ];
-		} else {
+		} elseif ( 'all' === ( $location['mode'] ?? 'all' ) ) {
 			$group['location'] = [ 'mode' => 'all' ];
+		} else {
+			$group['location'] = [ 'mode' => 'invalid' ];
 		}
 		return $group;
 	}
