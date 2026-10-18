@@ -36,7 +36,7 @@ class Importer {
 		}
 
 		$schema_version = isset( $data['schema_version'] ) ? absint( $data['schema_version'] ) : 0;
-		if ( WEM_CF_SCHEMA_VERSION !== $schema_version ) {
+		if ( ! in_array( $schema_version, [ 1, WEM_CF_SCHEMA_VERSION ], true ) ) {
 			return new \WP_Error(
 				'unsupported_schema',
 				sprintf( '当前插件支持 Schema v%d，该文件为 Schema v%d。', WEM_CF_SCHEMA_VERSION, $schema_version )
@@ -46,6 +46,36 @@ class Importer {
 		$raw_groups = $data['field_groups'] ?? null;
 		if ( ! is_array( $raw_groups ) || empty( $raw_groups ) ) {
 			return new \WP_Error( 'no_groups', '导入文件中没有字段组。' );
+		}
+
+
+		if ( 2 === $schema_version ) {
+			foreach ( $raw_groups as $group_key => &$raw_group ) {
+				if ( ! is_array( $raw_group ) ) {
+					continue;
+				}
+				$location = isset( $raw_group['location'] ) && is_array( $raw_group['location'] ) ? $raw_group['location'] : [ 'mode' => 'all' ];
+				if ( 'specific_pages' !== ( $location['mode'] ?? 'all' ) ) {
+					$raw_group['location'] = [ 'mode' => 'all' ];
+					continue;
+				}
+				$page_ids = [];
+				foreach ( (array) ( $location['page_refs'] ?? [] ) as $page_ref ) {
+					if ( ! is_array( $page_ref ) || '' === trim( (string) ( $page_ref['path'] ?? '' ) ) ) {
+						return new \\WP_Error( 'invalid_page_reference', sprintf( '字段组 %s 包含无效的页面引用，未执行导入。', sanitize_key( (string) $group_key ) ) );
+					}
+					$page = get_page_by_path( trim( (string) $page_ref['path'], '/' ), OBJECT, 'page' );
+					if ( ! $page || 'page' !== $page->post_type ) {
+						return new \\WP_Error( 'page_reference_not_found', sprintf( '字段组 %s 引用的页面“%s”在目标站点不存在。请先创建该页面，或在目标站点手动创建字段组。', sanitize_key( (string) $group_key ), sanitize_text_field( (string) ( $page_ref['title'] ?? $page_ref['path'] ) ) ) );
+					}
+					$page_ids[] = (int) $page->ID;
+				}
+				if ( empty( $page_ids ) ) {
+					return new \\WP_Error( 'page_reference_empty', sprintf( '字段组 %s 没有可匹配的指定页面，未执行导入。', sanitize_key( (string) $group_key ) ) );
+				}
+				$raw_group['location'] = [ 'mode' => 'specific_pages', 'page_ids' => array_values( array_unique( $page_ids ) ) ];
+			}
+			unset( $raw_group );
 		}
 
 		$groups = $this->normalizer->groups( $raw_groups );
