@@ -33,11 +33,24 @@ class Normalizer {
 			)
 		);
 
+		$location_key_exists = array_key_exists( 'location', $input );
+		$has_location = $location_key_exists && is_array( $input['location'] );
+		$location = $has_location ? $input['location'] : [];
+		$location_mode = ! $location_key_exists ? 'all' : ( $has_location ? $this->scalar_string( $location['mode'] ?? '' ) : 'invalid' );
+		if ( ! in_array( $location_mode, [ 'all', 'specific_pages' ], true ) ) {
+			$location_mode = 'invalid';
+		}
+		$page_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) ) ) ) );
+
 		return [
 			'key'         => trim( $this->scalar_string( $input['key'] ?? '' ) ),
 			'title'       => trim( $this->scalar_string( $input['title'] ?? '' ) ),
 			'description' => $this->scalar_string( $input['description'] ?? '' ),
 			'post_types'  => array_values( array_unique( $post_types ) ),
+			'location'    => [
+				'mode'     => $location_mode,
+				'page_ids' => $page_ids,
+			],
 			'fields'      => $fields,
 		];
 	}

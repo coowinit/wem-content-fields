@@ -273,9 +273,65 @@
 			});
 		}
 
+		var locationRadios = qsa('input[name="group[location][mode]"]');
+		var locationPages = qs('.wem-cf-location-pages');
+		var postTypeInputs = qsa('input[name="group[post_types][]"]');
+		var previousPostTypeState = null;
+
+		function syncLocation() {
+			var selected = qs('input[name="group[location][mode]"]:checked');
+			var restricted = selected && selected.value === 'specific_pages';
+
+			if (locationPages) {
+				locationPages.hidden = !restricted;
+				var pageSelect = qs('#wem-cf-location-page-ids', locationPages);
+				if (pageSelect) { pageSelect.required = !!restricted; }
+			}
+
+			if (restricted) {
+				if (previousPostTypeState === null) {
+					previousPostTypeState = postTypeInputs.map(function (input) {
+						return { input: input, checked: input.checked };
+					});
+				}
+				postTypeInputs.forEach(function (input) {
+					var isPage = input.value === 'page';
+					input.checked = isPage;
+					input.disabled = !isPage;
+					var label = input.closest('label');
+					if (label) { label.classList.toggle('is-disabled', !isPage); }
+				});
+			} else {
+				postTypeInputs.forEach(function (input) {
+					input.disabled = false;
+					var label = input.closest('label');
+					if (label) { label.classList.remove('is-disabled'); }
+				});
+				if (previousPostTypeState !== null) {
+					previousPostTypeState.forEach(function (item) {
+						item.input.checked = item.checked;
+					});
+					previousPostTypeState = null;
+				}
+			}
+		}
+
+		locationRadios.forEach(function (radio) {
+			radio.addEventListener('change', syncLocation);
+		});
+		syncLocation();
+
 		var groupForm = qs('#wem-cf-group-form');
 		if (groupForm && fields) {
 			groupForm.addEventListener('submit', function (event) {
+				var selectedLocation = qs('input[name="group[location][mode]"]:checked');
+				var pageSelect = qs('#wem-cf-location-page-ids');
+				if (selectedLocation && selectedLocation.value === 'specific_pages' && pageSelect && !Array.from(pageSelect.selectedOptions).length) {
+					event.preventDefault();
+					window.alert('请选择至少一个指定页面。');
+					pageSelect.focus();
+					return;
+				}
 				if (!qs('.wem-cf-field-card', fields)) {
 					event.preventDefault();
 					window.alert('请至少添加一个字段后再保存字段组。');

@@ -49,6 +49,26 @@ class Definitions {
 		return $matched;
 	}
 
+	public function for_object( string $post_type, int $post_id ): array {
+		$matched = [];
+		foreach ( $this->for_post_type( $post_type ) as $key => $group ) {
+			$location = isset( $group['location'] ) && is_array( $group['location'] ) ? $group['location'] : [];
+			$mode = (string) ( $location['mode'] ?? 'all' );
+			if ( 'all' === $mode ) {
+				$matched[ $key ] = $group;
+				continue;
+			}
+			if ( 'specific_pages' !== $mode ) {
+				continue;
+			}
+			$page_ids = array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) );
+			if ( 'page' === $post_type && $post_id > 0 && in_array( $post_id, $page_ids, true ) ) {
+				$matched[ $key ] = $group;
+			}
+		}
+		return $matched;
+	}
+
 	public function clear_cache(): void {
 		$this->cache = null;
 	}

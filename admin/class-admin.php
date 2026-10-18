@@ -122,6 +122,7 @@ class Admin {
 		);
 
 		$available_post_types = $this->available_post_types( (array) $config['post_types'] );
+		$available_pages      = get_pages( [ 'sort_column' => 'post_title', 'sort_order' => 'ASC', 'post_status' => [ 'publish', 'draft', 'private', 'pending' ] ] );
 		$field_type_labels    = $this->types->labels();
 		$field_settings       = $this->types->settings_schemas();
 		include WEM_CF_PATH . 'admin/views/field-group-edit.php';

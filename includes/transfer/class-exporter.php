@@ -15,7 +15,7 @@ class Exporter {
 	}
 
 	/**
-	 * Build a portable Schema v1 export package from stored definitions only.
+	 * Build a portable Schema v2 export package from stored definitions only.
 	 * Runtime definitions injected by filters are intentionally excluded.
 	 */
 	public function package( array $selected_keys = [] ): array {
@@ -27,7 +27,7 @@ class Exporter {
 			if ( '' === $key || ! isset( $stored[ $key ] ) || ! is_array( $stored[ $key ] ) ) {
 				continue;
 			}
-			$groups[ $key ] = $stored[ $key ];
+			$groups[ $key ] = $this->portable_group( $stored[ $key ] );
 		}
 
 		return [
@@ -37,6 +37,33 @@ class Exporter {
 			'exported_at'    => gmdate( 'c' ),
 			'field_groups'   => $groups,
 		];
+	}
+
+	/**
+	 * Replace site-local Page IDs with path references for portable JSON.
+	 */
+	private function portable_group( array $group ): array {
+		$location = ! array_key_exists( 'location', $group ) ? [ 'mode' => 'all' ] : ( is_array( $group['location'] ) ? $group['location'] : [ 'mode' => 'invalid' ] );
+		if ( 'specific_pages' === ( $location['mode'] ?? 'all' ) ) {
+			$refs = [];
+			foreach ( array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) ) as $page_id ) {
+				$page = get_post( $page_id );
+				if ( ! $page || 'page' !== $page->post_type ) {
+					continue;
+				}
+				$refs[] = [
+					'path'  => trim( (string) get_page_uri( $page_id ), '/' ),
+					'slug'  => (string) $page->post_name,
+					'title' => (string) $page->post_title,
+				];
+			}
+			$group['location'] = [ 'mode' => 'specific_pages', 'page_refs' => $refs ];
+		} elseif ( 'all' === ( $location['mode'] ?? 'all' ) ) {
+			$group['location'] = [ 'mode' => 'all' ];
+		} else {
+			$group['location'] = [ 'mode' => 'invalid' ];
+		}
+		return $group;
 	}
 
 	public function json( array $selected_keys = [] ) {

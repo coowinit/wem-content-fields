@@ -46,7 +46,8 @@ class Meta_Boxes {
 
 		$has_editor = false;
 		$has_media  = false;
-		foreach ( $this->definitions->for_post_type( (string) $screen->post_type ) as $group ) {
+		$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+		foreach ( $this->definitions->for_object( (string) $screen->post_type, $post_id ) as $group ) {
 			foreach ( (array) ( $group['fields'] ?? [] ) as $field ) {
 				$field_type = (string) ( $field['type'] ?? '' );
 				if ( 'editor' === $field_type ) {
@@ -84,7 +85,8 @@ class Meta_Boxes {
 			return;
 		}
 
-		$groups = $this->definitions->for_post_type( $post_type );
+		$post_id = is_object( $post ) && isset( $post->ID ) ? (int) $post->ID : 0;
+		$groups  = $this->definitions->for_object( $post_type, $post_id );
 		if ( empty( $groups ) ) {
 			return;
 		}
@@ -164,7 +166,7 @@ class Meta_Boxes {
 			? wp_unslash( $_POST['wem_cf_values'] )
 			: [];
 
-		foreach ( $this->definitions->for_post_type( $post_type ) as $group ) {
+		foreach ( $this->definitions->for_object( $post_type, $post_id ) as $group ) {
 			$nonce_name = 'wem_cf_nonce_' . $group['key'];
 			$nonce      = isset( $_POST[ $nonce_name ] ) ? sanitize_text_field( wp_unslash( $_POST[ $nonce_name ] ) ) : '';
 			if ( ! wp_verify_nonce( $nonce, 'wem_cf_save_values_' . $group['key'] ) ) {

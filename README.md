@@ -4,8 +4,20 @@
 
 插件以 WordPress 原生 API 为核心：字段定义保存到 `wp_options`，实际字段值保存到 `wp_postmeta`，并通过 `register_post_meta()` 接入 WordPress REST API。
 
-当前稳定版本：**v1.0.0**  
-Schema：**v1**
+当前版本：**v1.1.0**（新增字段组显示范围）  
+Schema：**v2（兼容导入 v1）**
+
+## 字段组显示范围
+
+字段组支持配置后台显示范围：
+
+- 默认模式：字段组显示在已关联的内容类型中，保持原有行为。
+- 指定页面模式：字段组仅显示在所选 WordPress Page 的编辑界面。
+- 显示条件只影响后台字段组的适用范围，不会删除已有文章的字段值。
+- JSON Schema v2 使用页面路径引用来迁移指定页面规则；目标站点找不到对应页面时会中止导入，避免意外扩大显示范围。
+- Schema v1 导入仍兼容，旧字段组默认按原来的全局关联规则处理。
+
+此功能已纳入 v1.1.0 发布范围。
 
 ## 项目定位
 
@@ -72,6 +84,7 @@ key
 title
 description
 post_types[]
+location
 fields[]
 ```
 
@@ -248,7 +261,7 @@ JSON 顶层结构：
 ```json
 {
   "format": "wem-content-fields",
-  "schema_version": 1,
+  "schema_version": 2,
   "plugin_version": "1.0.0",
   "exported_at": "2026-09-16T00:00:00+00:00",
   "field_groups": {}
@@ -290,6 +303,7 @@ JSON 顶层结构：
 - Field Key 已存在
 - Meta Key 已存在
 - Schema 数据不合法
+- 指定页面规则无效或无法在目标站点唯一匹配
 - Field / Option 定义不合法
 
 如果目标网站当前还没有对应 Post Type，只显示“当前不可用”提醒，不阻止导入。以后该 CPT 注册后，字段组会自动重新生效。
@@ -436,7 +450,7 @@ v1.0.0 暂不包含：
 - User Meta
 - Repeater
 - Relationship
-- Conditional Logic
+- 字段级 Conditional Logic（根据其他字段值动态显示/隐藏）
 - Gallery / 多图字段
 - 通用文件字段
 - Frontend Form
@@ -449,6 +463,14 @@ v1.0.0 暂不包含：
 这些功能不会因为“常见”而自动加入，后续仍按真实业务需求评估。
 
 ## 版本
+
+### v1.1.0
+
+- 新增字段组显示范围：全部关联内容类型或指定 WordPress Pages。
+- 指定页面模式仅适用于 Pages，并支持选择多个页面。
+- REST API Meta 授权遵守字段组的页面显示范围。
+- JSON Schema v2 导出页面路径引用，导入时映射到目标站点页面；继续兼容 Schema v1 导入。
+- 增加 GitHub Actions PHP 语法检查。
 
 ### v1.0.0
 
