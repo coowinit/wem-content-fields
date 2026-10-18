@@ -273,9 +273,30 @@
 			});
 		}
 
+		var locationRadios = qsa('input[name="group[location][mode]"]');
+		var locationPages = qs('.wem-cf-location-pages');
+		function syncLocation() {
+			if (!locationPages) { return; }
+			var selected = qs('input[name="group[location][mode]"]:checked');
+			var restricted = selected && selected.value === 'specific_pages';
+			locationPages.hidden = !restricted;
+			var pageSelect = qs('#wem-cf-location-page-ids', locationPages);
+			if (pageSelect) { pageSelect.required = !!restricted; }
+		}
+		locationRadios.forEach(function (radio) { radio.addEventListener('change', syncLocation); });
+		syncLocation();
+
 		var groupForm = qs('#wem-cf-group-form');
 		if (groupForm && fields) {
 			groupForm.addEventListener('submit', function (event) {
+				var selectedLocation = qs('input[name="group[location][mode]"]:checked');
+				var pageSelect = qs('#wem-cf-location-page-ids');
+				if (selectedLocation && selectedLocation.value === 'specific_pages' && pageSelect && !Array.from(pageSelect.selectedOptions).length) {
+					event.preventDefault();
+					window.alert('请选择至少一个指定页面。');
+					pageSelect.focus();
+					return;
+				}
 				if (!qs('.wem-cf-field-card', fields)) {
 					event.preventDefault();
 					window.alert('请至少添加一个字段后再保存字段组。');
