@@ -33,11 +33,19 @@ class Normalizer {
 			)
 		);
 
+		$location = isset( $input['location'] ) && is_array( $input['location'] ) ? $input['location'] : [];
+		$location_mode = $this->scalar_string( $location['mode'] ?? 'all' );
+		$page_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) ) ) ) );
+
 		return [
 			'key'         => trim( $this->scalar_string( $input['key'] ?? '' ) ),
 			'title'       => trim( $this->scalar_string( $input['title'] ?? '' ) ),
 			'description' => $this->scalar_string( $input['description'] ?? '' ),
 			'post_types'  => array_values( array_unique( $post_types ) ),
+			'location'    => [
+				'mode'     => in_array( $location_mode, [ 'all', 'specific_pages' ], true ) ? $location_mode : 'all',
+				'page_ids' => $page_ids,
+			],
 			'fields'      => $fields,
 		];
 	}
