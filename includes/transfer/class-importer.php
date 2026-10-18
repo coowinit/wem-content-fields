@@ -62,16 +62,16 @@ class Importer {
 				$page_ids = [];
 				foreach ( (array) ( $location['page_refs'] ?? [] ) as $page_ref ) {
 					if ( ! is_array( $page_ref ) || '' === trim( (string) ( $page_ref['path'] ?? '' ) ) ) {
-						return new \\WP_Error( 'invalid_page_reference', sprintf( '字段组 %s 包含无效的页面引用，未执行导入。', sanitize_key( (string) $group_key ) ) );
+						return new \WP_Error( 'invalid_page_reference', sprintf( '字段组 %s 包含无效的页面引用，未执行导入。', sanitize_key( (string) $group_key ) ) );
 					}
 					$page = get_page_by_path( trim( (string) $page_ref['path'], '/' ), OBJECT, 'page' );
 					if ( ! $page || 'page' !== $page->post_type ) {
-						return new \\WP_Error( 'page_reference_not_found', sprintf( '字段组 %s 引用的页面“%s”在目标站点不存在。请先创建该页面，或在目标站点手动创建字段组。', sanitize_key( (string) $group_key ), sanitize_text_field( (string) ( $page_ref['title'] ?? $page_ref['path'] ) ) ) );
+						return new \WP_Error( 'page_reference_not_found', sprintf( '字段组 %s 引用的页面“%s”在目标站点不存在。请先创建该页面，或在目标站点手动创建字段组。', sanitize_key( (string) $group_key ), sanitize_text_field( (string) ( $page_ref['title'] ?? $page_ref['path'] ) ) ) );
 					}
 					$page_ids[] = (int) $page->ID;
 				}
 				if ( empty( $page_ids ) ) {
-					return new \\WP_Error( 'page_reference_empty', sprintf( '字段组 %s 没有可匹配的指定页面，未执行导入。', sanitize_key( (string) $group_key ) ) );
+					return new \WP_Error( 'page_reference_empty', sprintf( '字段组 %s 没有可匹配的指定页面，未执行导入。', sanitize_key( (string) $group_key ) ) );
 				}
 				$raw_group['location'] = [ 'mode' => 'specific_pages', 'page_ids' => array_values( array_unique( $page_ids ) ) ];
 			}
