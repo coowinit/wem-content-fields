@@ -53,8 +53,12 @@ class Definitions {
 		$matched = [];
 		foreach ( $this->for_post_type( $post_type ) as $key => $group ) {
 			$location = isset( $group['location'] ) && is_array( $group['location'] ) ? $group['location'] : [];
-			if ( 'specific_pages' !== ( $location['mode'] ?? 'all' ) ) {
+			$mode = (string) ( $location['mode'] ?? 'all' );
+			if ( 'all' === $mode ) {
 				$matched[ $key ] = $group;
+				continue;
+			}
+			if ( 'specific_pages' !== $mode ) {
 				continue;
 			}
 			$page_ids = array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) );
