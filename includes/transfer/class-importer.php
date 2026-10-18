@@ -56,7 +56,7 @@ class Importer {
 				}
 				$location = isset( $raw_group['location'] ) && is_array( $raw_group['location'] ) ? $raw_group['location'] : [ 'mode' => 'all' ];
 				if ( ! in_array( (string) ( $location['mode'] ?? 'all' ), [ 'all', 'specific_pages' ], true ) ) {
-					return new \\WP_Error( 'invalid_location_mode', sprintf( '字段组 %s 的显示条件无效，未执行导入。', sanitize_key( (string) $group_key ) ) );
+					return new \WP_Error( 'invalid_location_mode', sprintf( '字段组 %s 的显示条件无效，未执行导入。', sanitize_key( (string) $group_key ) ) );
 				}
 				if ( 'all' === ( $location['mode'] ?? 'all' ) ) {
 					$raw_group['location'] = [ 'mode' => 'all' ];
