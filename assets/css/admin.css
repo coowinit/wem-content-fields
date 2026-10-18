@@ -469,3 +469,26 @@
 .wem-cf-location-pages[hidden] {
 	display: none !important;
 }
+
+
+/* Clear visual feedback for page-only location mode */
+.wem-cf-post-types label.is-disabled {
+	opacity: .55;
+	cursor: not-allowed;
+}
+.wem-cf-post-types label.is-disabled input {
+	cursor: not-allowed;
+}
+.wem-cf-location-options {
+	gap: 12px 22px;
+}
+.wem-cf-location-options label {
+	padding: 2px 0;
+}
+.wem-cf-location-pages {
+	margin-top: 14px;
+	padding: 14px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
