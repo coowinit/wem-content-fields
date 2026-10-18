@@ -372,45 +372,183 @@ Filter 注入。
 
 在调用 `register_post_meta()` 前调整最终 Meta 注册参数。
 
-## 前台使用
+## 前台模板调用示例
 
-插件只负责结构化字段定义和数据保存，不负责前台模板。
+WEM Content Fields 负责字段定义、后台编辑和数据保存；它**不会自动把字段插入主题页面**。主题模板需要根据字段类型读取 Post Meta，并决定 HTML 结构与样式。
 
-普通文本字段可以直接使用：
+### 通用准备：获取当前内容 ID
 
-```php
-$product_number = get_post_meta(
-    get_the_ID(),
-    '_wem_cf_product_number',
-    true
-);
-```
-
-图片字段保存 Attachment ID：
+在单篇文章、Page 或 CPT 模板中，可以使用当前循环中的 `get_the_ID()`，或在单页模板中使用 `get_queried_object_id()`：
 
 ```php
-$image_id = (int) get_post_meta(
-    get_the_ID(),
-    '_wem_cf_product_main_image',
-    true
-);
-
-echo wp_get_attachment_image( $image_id, 'large' );
+<?php
+$post_id = get_queried_object_id();
+?>
 ```
 
-PDF 字段同样保存 Attachment ID：
+插件按 `_wem_cf_{field_key}` 生成 Meta Key。例如字段标识为 `product_number`，默认 Meta Key 就是 `_wem_cf_product_number`。实际项目应以字段组中显示的 Meta Key 为准。
+
+### 1. 单行文本（`text`）
+
+存储类型：字符串。适用于标题、型号、简短标签等纯文本。
 
 ```php
-$file_id  = (int) get_post_meta(
-    get_the_ID(),
-    '_wem_cf_product_catalog',
-    true
-);
-$file_url = wp_get_attachment_url( $file_id );
+<?php
+$product_number = get_post_meta( $post_id, '_wem_cf_product_number', true );
+
+if ( '' !== $product_number ) :
+?>
+  <p class="product-number">
+    <?php echo esc_html( $product_number ); ?>
+  </p>
+<?php endif; ?>
 ```
 
-Select / Checkbox 建议根据字段定义中的 Options 将稳定 Value 映射为前台 Label。
+### 2. 多行文本（`textarea`）
 
+存储类型：字符串。适用于纯文本描述；使用 `nl2br( esc_html( ... ) )` 保留换行，不将用户输入作为 HTML 输出。
+
+```php
+<?php
+$description = get_post_meta( $post_id, '_wem_cf_product_description', true );
+
+if ( '' !== $description ) :
+?>
+  <div class="product-description">
+    <?php echo nl2br( esc_html( $description ) ); ?>
+  </div>
+<?php endif; ?>
+```
+
+### 3. 微型富文本（`editor`）
+
+存储类型：经过 `wp_kses_post()` 清理的 HTML 字符串。用于段落、加粗、列表、链接等富文本正文。
+
+```php
+<?php
+$content = get_post_meta( $post_id, '_wem_cf_product_intro', true );
+
+if ( '' !== $content ) :
+?>
+  <div class="product-intro">
+    <?php echo wp_kses_post( $content ); ?>
+  </div>
+<?php endif; ?>
+```
+
+不要用 `esc_html()` 输出富文本，否则 HTML 标签会显示成文字，编辑器格式也无法呈现。
+
+### 4. 图片（`image`）
+
+存储类型：WordPress 媒体附件 ID（整数），不是图片 URL。推荐使用 `wp_get_attachment_image()` 输出图片。
+
+```php
+<?php
+$image_id = absint(
+    get_post_meta( $post_id, '_wem_cf_product_main_image', true )
+);
+
+if ( $image_id && wp_attachment_is_image( $image_id ) ) {
+    echo wp_get_attachment_image(
+        $image_id,
+        'large',
+        false,
+        array( 'class' => 'product-image', 'loading' => 'lazy' )
+    );
+}
+?>
+```
+
+WordPress 会根据附件信息生成图片标签；如需独立控制 `alt`，可读取单独的 Alt 字段并在自定义图片标签中使用 `esc_attr()`。
+
+### 5. PDF 文件（`file`）
+
+存储类型：PDF 附件 ID（整数）。输出前确认附件 URL 存在且 MIME 类型为 PDF。
+
+```php
+<?php
+$pdf_id  = absint( get_post_meta( $post_id, '_wem_cf_product_catalog', true ) );
+$pdf_url = $pdf_id ? wp_get_attachment_url( $pdf_id ) : false;
+
+if (
+    $pdf_url &&
+    'application/pdf' === get_post_mime_type( $pdf_id )
+) :
+?>
+  <a href="<?php echo esc_url( $pdf_url ); ?>"
+     target="_blank" rel="noopener">
+    <?php echo esc_html( get_the_title( $pdf_id ) ?: '查看 PDF 文件' ); ?>
+  </a>
+<?php endif; ?>
+```
+
+注意：媒体库附件 URL 本身不代表私有下载权限。若 PDF 不允许匿名访问，需要另外实现访问控制，不能只隐藏前台链接。
+
+### 6. 下拉框（`select`）
+
+存储类型：单个字符串，即后台选项中配置的稳定 `value`，而不是显示给用户的 `label`。以下映射值仅为示例，必须替换成字段设置中的实际值。
+
+```php
+<?php
+$finish = get_post_meta( $post_id, '_wem_cf_product_finish', true );
+
+$finish_labels = array(
+    'oak'     => '橡木色',
+    'walnut'  => '胡桃木色',
+    'charcoal'=> '炭灰色',
+);
+
+if ( isset( $finish_labels[ $finish ] ) ) {
+    echo esc_html( $finish_labels[ $finish ] );
+}
+?>
+```
+
+### 7. 多选框（`checkbox`）
+
+存储类型：字符串数组。可使用 `foreach` 遍历选中的值；需要显示人类可读的名称时，将存储值映射为后台配置的选项标签。
+
+```php
+<?php
+$raw_applications = get_post_meta( $post_id, '_wem_cf_product_applications', true );
+$applications     = is_array( $raw_applications ) ? $raw_applications : array();
+
+$application_labels = array(
+    'commercial' => '商业空间',
+    'hotel'      => '酒店',
+    'residential'=> '住宅',
+);
+
+$display_applications = array();
+
+foreach ( $applications as $application ) {
+    if ( isset( $application_labels[ $application ] ) ) {
+        $display_applications[] = $application_labels[ $application ];
+    }
+}
+
+if ( $display_applications ) :
+?>
+  <ul class="product-applications">
+    <?php foreach ( $display_applications as $label ) : ?>
+      <li><?php echo esc_html( $label ); ?></li>
+    <?php endforeach; ?>
+  </ul>
+<?php endif; ?>
+```
+
+### 选项标签映射的维护建议
+
+下拉框与多选框保存的是稳定的选项值。示例中的 `value => label` 数组必须与字段组后台的选项一致。若选项会在多个页面或模板中复用，应将映射集中管理，避免多个模板各自维护后出现不一致。
+
+### 通用注意事项
+
+- 所有示例均为模板代码片段，需要放入合适的 PHP 模板上下文，不能直接作为独立 PHP 文件运行。
+- `$post_id` 必须对应实际正在渲染的 Post / Page / CPT ID。
+- 输出纯文本使用 `esc_html()`，HTML 属性使用 `esc_attr()`，URL 使用 `esc_url()`，富文本使用 `wp_kses_post()`。
+- 对图片、PDF 等附件 ID 进行验证，并为可选字段处理空值。
+- 字段组“仅在指定页面显示”是后台编辑界面的适用规则，不会自动生成前台模板，也不替代前台输出的安全处理。
+- 插件负责保存数据；主题决定如何显示。布局、CSS 类名和响应式规则应由主题维护。
 
 ## 测试主题
 
