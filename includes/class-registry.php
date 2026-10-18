@@ -59,8 +59,12 @@ class Registry {
 			if ( ! current_user_can( $capability ) || ! current_user_can( 'edit_post', (int) $post_id ) ) {
 				return false;
 			}
-			if ( 'specific_pages' !== ( $location['mode'] ?? 'all' ) ) {
+			$mode = (string) ( $location['mode'] ?? 'all' );
+			if ( 'all' === $mode ) {
 				return true;
+			}
+			if ( 'specific_pages' !== $mode ) {
+				return false;
 			}
 			return 'page' === $post_type && in_array( (int) $post_id, array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) ), true );
 		};
