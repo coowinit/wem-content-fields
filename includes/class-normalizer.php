@@ -33,8 +33,12 @@ class Normalizer {
 			)
 		);
 
-		$location = isset( $input['location'] ) && is_array( $input['location'] ) ? $input['location'] : [];
-		$location_mode = $this->scalar_string( $location['mode'] ?? 'all' );
+		$has_location = isset( $input['location'] ) && is_array( $input['location'] );
+		$location = $has_location ? $input['location'] : [];
+		$location_mode = $has_location ? $this->scalar_string( $location['mode'] ?? '' ) : 'all';
+		if ( ! in_array( $location_mode, [ 'all', 'specific_pages' ], true ) ) {
+			$location_mode = $has_location ? 'invalid' : 'all';
+		}
 		$page_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) ) ) ) );
 
 		return [
@@ -43,7 +47,7 @@ class Normalizer {
 			'description' => $this->scalar_string( $input['description'] ?? '' ),
 			'post_types'  => array_values( array_unique( $post_types ) ),
 			'location'    => [
-				'mode'     => in_array( $location_mode, [ 'all', 'specific_pages' ], true ) ? $location_mode : 'all',
+				'mode'     => $location_mode,
 				'page_ids' => $page_ids,
 			],
 			'fields'      => $fields,
