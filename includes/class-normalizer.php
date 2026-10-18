@@ -33,11 +33,12 @@ class Normalizer {
 			)
 		);
 
-		$has_location = isset( $input['location'] ) && is_array( $input['location'] );
+		$location_key_exists = array_key_exists( 'location', $input );
+		$has_location = $location_key_exists && is_array( $input['location'] );
 		$location = $has_location ? $input['location'] : [];
-		$location_mode = $has_location ? $this->scalar_string( $location['mode'] ?? '' ) : 'all';
+		$location_mode = ! $location_key_exists ? 'all' : ( $has_location ? $this->scalar_string( $location['mode'] ?? '' ) : 'invalid' );
 		if ( ! in_array( $location_mode, [ 'all', 'specific_pages' ], true ) ) {
-			$location_mode = $has_location ? 'invalid' : 'all';
+			$location_mode = 'invalid';
 		}
 		$page_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) ) ) ) );
 
