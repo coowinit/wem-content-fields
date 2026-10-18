@@ -126,7 +126,7 @@ $render_settings = static function ( array $field, int $index, array $schema ): 
 				<label for="wem-cf-location-page-ids"><strong>指定页面</strong></label>
 				<select id="wem-cf-location-page-ids" name="group[location][page_ids][]" multiple size="6" class="large-text">
 					<?php foreach ( $available_pages as $page ) : ?>
-						<option value="<?php echo esc_attr( (string) $page->ID ); ?>" <?php selected( in_array( (int) $page->ID, array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) ), true ) ); ?>><?php echo esc_html( get_page_hierarchy( [ $page->ID => $page->post_title ] ) ? $page->post_title : $page->post_title ); ?> (ID: <?php echo esc_html( (string) $page->ID ); ?>)</option>
+						<option value="<?php echo esc_attr( (string) $page->ID ); ?>" <?php selected( in_array( (int) $page->ID, array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) ), true ) ); ?>><?php echo esc_html( $page->post_title ); ?> (ID: <?php echo esc_html( (string) $page->ID ); ?>)</option>
 					<?php endforeach; ?>
 				</select>
 				<p class="description">按住 Ctrl（Windows）或 Command（Mac）可选择多个页面。选择“仅在指定页面显示”时，至少选择一个页面。</p>
