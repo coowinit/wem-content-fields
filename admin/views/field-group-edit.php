@@ -115,6 +115,25 @@ $render_settings = static function ( array $field, int $index, array $schema ): 
 		</section>
 
 		<section class="wem-cf-panel">
+			<h2>显示条件</h2>
+			<p class="description">设置该字段组在哪些页面的编辑界面中显示。此设置不改变前台页面布局，也不会删除已有字段数据。</p>
+			<?php $location = isset( $config['location'] ) && is_array( $config['location'] ) ? $config['location'] : [ 'mode' => 'all', 'page_ids' => [] ]; ?>
+			<fieldset class="wem-cf-location-options">
+				<label><input type="radio" name="group[location][mode]" value="all" <?php checked( ( $location['mode'] ?? 'all' ), 'all' ); ?>> 全部关联内容类型</label>
+				<label><input type="radio" name="group[location][mode]" value="specific_pages" <?php checked( ( $location['mode'] ?? 'all' ), 'specific_pages' ); ?>> 仅在指定页面显示</label>
+			</fieldset>
+			<div class="wem-cf-location-pages">
+				<label for="wem-cf-location-page-ids"><strong>指定页面</strong></label>
+				<select id="wem-cf-location-page-ids" name="group[location][page_ids][]" multiple size="6" class="large-text">
+					<?php foreach ( $available_pages as $page ) : ?>
+						<option value="<?php echo esc_attr( (string) $page->ID ); ?>" <?php selected( in_array( (int) $page->ID, array_map( 'absint', (array) ( $location['page_ids'] ?? [] ) ), true ) ); ?>><?php echo esc_html( get_page_hierarchy( [ $page->ID => $page->post_title ] ) ? $page->post_title : $page->post_title ); ?> (ID: <?php echo esc_html( (string) $page->ID ); ?>)</option>
+					<?php endforeach; ?>
+				</select>
+				<p class="description">按住 Ctrl（Windows）或 Command（Mac）可选择多个页面。选择“仅在指定页面显示”时，至少选择一个页面。</p>
+			</div>
+		</section>
+
+		<section class="wem-cf-panel">
 			<div class="wem-cf-panel-head">
 				<div>
 					<h2>字段组中的字段</h2>
