@@ -5,7 +5,7 @@
 插件以 WordPress 原生 API 为核心：字段定义保存到 `wp_options`，实际字段值保存到 `wp_postmeta`，并通过 `register_post_meta()` 接入 WordPress REST API。
 
 当前稳定版本：**v1.0.0**  
-Schema：**v1**
+Schema：**v2（兼容导入 v1）**
 
 ## 字段组显示条件（开发中）
 
@@ -84,6 +84,7 @@ key
 title
 description
 post_types[]
+location
 fields[]
 ```
 
@@ -260,7 +261,7 @@ JSON 顶层结构：
 ```json
 {
   "format": "wem-content-fields",
-  "schema_version": 1,
+  "schema_version": 2,
   "plugin_version": "1.0.0",
   "exported_at": "2026-09-16T00:00:00+00:00",
   "field_groups": {}
@@ -302,6 +303,7 @@ JSON 顶层结构：
 - Field Key 已存在
 - Meta Key 已存在
 - Schema 数据不合法
+- 指定页面规则无效或无法在目标站点唯一匹配
 - Field / Option 定义不合法
 
 如果目标网站当前还没有对应 Post Type，只显示“当前不可用”提醒，不阻止导入。以后该 CPT 注册后，字段组会自动重新生效。
@@ -448,7 +450,7 @@ v1.0.0 暂不包含：
 - User Meta
 - Repeater
 - Relationship
-- Conditional Logic
+- 字段级 Conditional Logic（根据其他字段值动态显示/隐藏）
 - Gallery / 多图字段
 - 通用文件字段
 - Frontend Form
