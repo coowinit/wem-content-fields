@@ -167,6 +167,8 @@
 				image.src = thumbnail || '';
 				image.alt = '';
 				image.className = 'wem-cf-media-image';
+				image.width = 96;
+				image.height = 96;
 				preview.appendChild(image);
 			} else {
 				var icon = document.createElement('span');

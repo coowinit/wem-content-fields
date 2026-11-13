@@ -306,6 +306,7 @@
 	display: flex;
 	align-items: center;
 	gap: 10px;
+	min-width: 0;
 	min-height: 42px;
 	margin-bottom: 10px;
 	padding: 10px 12px;
@@ -316,14 +317,21 @@
 
 .wem-cf-media-image {
 	display: block;
-	max-width: 120px;
-	height: auto;
+	flex: 0 0 96px;
+	width: 96px;
+	height: 96px;
+	min-width: 0;
+	max-width: 100%;
+	object-fit: contain;
+	box-sizing: border-box;
 	border: 1px solid #dcdcde;
 	background: #fff;
 }
 
 .wem-cf-media-name {
-	word-break: break-word;
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow-wrap: anywhere;
 }
 
 .wem-cf-media-empty {
@@ -335,6 +343,34 @@
 	height: 28px;
 	font-size: 28px;
 	color: #646970;
+}
+
+/* Media field actions: same control size, distinct remove intent. */
+.wem-cf-media-field > .wem-cf-media-select,
+.wem-cf-media-field > .wem-cf-media-remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 32px;
+	padding: 0 12px;
+	vertical-align: middle;
+}
+
+.wem-cf-media-field > .wem-cf-media-remove {
+	margin-left: 6px;
+	color: #b32d2e;
+	border-color: #d8a4a5;
+}
+
+.wem-cf-media-field > .wem-cf-media-remove:hover,
+.wem-cf-media-field > .wem-cf-media-remove:focus {
+	color: #8a2424;
+	border-color: #b32d2e;
+	background: #fff5f5;
+}
+
+.wem-cf-media-field > .wem-cf-media-remove[hidden] {
+	display: none;
 }
 
 /* JSON Import / Export */

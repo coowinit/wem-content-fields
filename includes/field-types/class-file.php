@@ -57,7 +57,7 @@ class File extends Field_Type {
 			esc_html( $attachment_id ? '更换 PDF' : '选择 PDF' )
 		);
 		printf(
-			' <button type="button" class="button-link-delete wem-cf-media-remove"%s>移除</button>',
+			' <button type="button" class="button wem-cf-media-remove"%s>移除</button>',
 			$attachment_id ? '' : ' hidden'
 		);
 		echo '<p class="description">仅允许选择 PDF 文件。</p>';

@@ -66,7 +66,7 @@ class Image extends Field_Type {
 			esc_html( $attachment_id ? '更换图片' : '选择图片' )
 		);
 		printf(
-			' <button type="button" class="button-link-delete wem-cf-media-remove"%s>移除</button>',
+			' <button type="button" class="button wem-cf-media-remove"%s>移除</button>',
 			$attachment_id ? '' : ' hidden'
 		);
 		echo '</div>';
